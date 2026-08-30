@@ -149,3 +149,11 @@ body {
 .spin-slow {
   animation: spinSlow 1.1s linear infinite;
 }
+
+@keyframes indeterminateSlide {
+  0% { transform: translateX(-130%); }
+  100% { transform: translateX(430%); }
+}
+.indeterminate-bar {
+  animation: indeterminateSlide 1.3s cubic-bezier(0.45, 0.1, 0.55, 0.9) infinite;
+}

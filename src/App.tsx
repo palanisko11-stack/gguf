@@ -17,6 +17,7 @@ import {
   IconClose,
   IconReset,
 } from "./ui/controls";
+import CompilerPanel from "./ui/CompilerPanel";
 
 const nf = new Intl.NumberFormat("cs-CZ");
 
@@ -215,14 +216,18 @@ export default function App() {
               <Toggle label="Pozastavit animaci" checked={params.paused} onChange={(v) => patch({ paused: v })} />
             </Section>
 
-            <Section title="C++ verze">
+            <Section title="Zabudovaný kompilátor">
               <div className="-mt-1 mb-1 inline-flex w-fit items-center gap-1.5 rounded-sm border border-mine-400/40 bg-mine-400/10 px-2 py-0.5">
                 <span className="inline-block h-[5px] w-[5px] rounded-full bg-mine-300" />
-                <span className="font-mono text-[9px] tracking-[0.18em] text-mine-300 uppercase">CPU raytracer · 0 závislostí</span>
+                <span className="font-mono text-[9px] tracking-[0.18em] text-mine-300 uppercase">Clang → WASM · běží v prohlížeči</span>
               </div>
+              <CompilerPanel />
+            </Section>
+
+            <Section title="Natívní build (C++)">
               <p className="text-[11px] leading-relaxed text-sand-400">
-                Stejná scéna jako <span className="text-sand-200">spustitelný program v C++17</span> — čistý
-                raytracer bez jediné knihovny, vlní touž funkcí povrchu. Texturu načte z{" "}
+                <span className="text-sand-200">tabule.cpp</span> je plnohodnotný C++17 raytracer bez jediné
+                knihovny — vlní touž funkcí povrchu. Texturu načte z{" "}
                 <span className="font-mono text-[10.5px] text-lamp-300">havirov.ppm</span> vedle programu,
                 jinak si vygeneruje procedurální uhlí.
               </p>
@@ -232,20 +237,34 @@ export default function App() {
                 <CmdBlock label="animace · 90 fází" cmd="./tabule 90" />
                 <CmdBlock label="textura z webp" cmd="ffmpeg -i havirov.webp havirov.ppm" />
               </div>
-              <a
-                href={`${import.meta.env.BASE_URL}tabule.cpp`}
-                download="tabule.cpp"
-                className="mt-3 flex items-center justify-center gap-2 rounded-sm border border-lamp-500/60 bg-lamp-500/10 px-3 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-lamp-300 uppercase transition-colors hover:bg-lamp-500/20"
-              >
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3v12" />
-                  <path d="m7 10 5 5 5-5" />
-                  <path d="M5 21h14" />
-                </svg>
-                Stáhnout tabule.cpp
-              </a>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <a
+                  href={`${import.meta.env.BASE_URL}tabule.cpp`}
+                  download="tabule.cpp"
+                  className="flex items-center justify-center gap-2 rounded-sm border border-lamp-500/60 bg-lamp-500/10 px-2 py-2 text-[10px] font-semibold tracking-[0.1em] text-lamp-300 uppercase transition-colors hover:bg-lamp-500/20"
+                >
+                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M5 21h14" />
+                  </svg>
+                  tabule.cpp
+                </a>
+                <a
+                  href={`${import.meta.env.BASE_URL}tabule_web.c`}
+                  download="tabule_web.c"
+                  className="flex items-center justify-center gap-2 rounded-sm border border-coal-600 px-2 py-2 text-[10px] font-semibold tracking-[0.1em] text-sand-400 uppercase transition-colors hover:border-coal-500 hover:text-sand-200"
+                >
+                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M5 21h14" />
+                  </svg>
+                  tabule_web.c
+                </a>
+              </div>
               <p className="mt-2 font-mono text-[9.5px] leading-relaxed text-sand-500">
-                výstup: tabule.ppm (P6) · v prohlížeči g++ spustit nelze, soubor je k překladu lokálně
+                výstup: tabule.ppm (P6) · tabule_web.c je C99 dvojče pro vestavěný kompilátor
               </p>
             </Section>
           </div>

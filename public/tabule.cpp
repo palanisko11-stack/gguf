@@ -18,6 +18,10 @@
 //      ./tabule                  ->  tabule.ppm              (1 snimek)
 //      ./tabule 90               ->  tabule_000..089.ppm     (animace, 90 fazi)
 //      ./tabule 30 1280 800      ->  30 snimku ve vlastnim rozliseni
+//      ./tabule --web            ->  rychly rezim pro WASM beh v prohlizeci
+//
+//  PROMENNE PROSTREDI (pouziva i zabudovany browser-kompilator pres WASI):
+//      TABULE_W=320 TABULE_H=200 TABULE_FRAMES=1 TABULE_PHASE=1.7 ./tabule
 //
 //  PREVOD TEXTURY Z WEBP:
 //      ffmpeg -i havirov.webp havirov.ppm
@@ -142,9 +146,12 @@ static V3 sceneNormal(V3 p) {
                     sceneMap(p + V3(0, 0, e)).d - d0));
 }
 
+static int g_steps       = 160;  // max kroku hlavniho raymarchingu
+static int g_shadowSteps = 40;   // max kroku stinoveho marchingu
+
 static Hit rayMarch(V3 ro, V3 rd, double& tOut) {
     double t = 0.02;
-    for (int i = 0; i < 160; ++i) {
+    for (int i = 0; i < g_steps; ++i) {
         Hit h = sceneMap(ro + rd * t);
         if (h.d < 0.0012) { tOut = t; return h; }
         t += h.d * 0.85;
@@ -157,7 +164,7 @@ static Hit rayMarch(V3 ro, V3 rd, double& tOut) {
 
 static double shadowMarch(V3 p, V3 L) {
     double t = 0.03;
-    for (int i = 0; i < 40; ++i) {
+    for (int i = 0; i < g_shadowSteps; ++i) {
         double d = sceneMap(p + L * t).d;
         if (d < 0.0015) return 0.0;
         t += std::max(d * 0.9, 0.02);
@@ -437,11 +444,27 @@ static bool renderFrame(int W, int H, double timeAnim, const std::string& path) 
 // ---------------------------------------------------------------------------
 int main(int argc, char** argv) {
     int frames = 1, W = 960, H = 600;
-    if (argc > 1) frames = std::max(1, std::atoi(argv[1]));
+    double basePhase = 2.4;
+
+    // --web: rychly rezim pro beh v prohlizeci (WASM, zabudovany kompilator)
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]) == "--web") {
+            W = 320; H = 200;
+            g_steps = 96;
+            g_shadowSteps = 24;
+        }
+    }
+    if (argc > 1 && std::string(argv[1]) != "--web") frames = std::max(1, std::atoi(argv[1]));
     if (argc > 3) {
         W = std::max(64, std::atoi(argv[2]));
         H = std::max(64, std::atoi(argv[3]));
     }
+
+    // prostredí — kanal, kterym browser (WASI shim) ridi beh bez argv
+    if (const char* e = std::getenv("TABULE_W"))       W      = std::max(64, std::atoi(e));
+    if (const char* e = std::getenv("TABULE_H"))       H      = std::max(64, std::atoi(e));
+    if (const char* e = std::getenv("TABULE_FRAMES"))  frames = std::max(1, std::atoi(e));
+    if (const char* e = std::getenv("TABULE_PHASE"))   basePhase = std::atof(e);
 
     if (loadPPM("havirov.ppm", g_tex)) {
         double aspect = (double)g_tex.w / (double)g_tex.h;
@@ -455,7 +478,7 @@ int main(int argc, char** argv) {
 
     std::printf("[tabule] render: %d snimek/snimku @ %dx%d (raymarching, CPU)\n", frames, W, H);
     for (int i = 0; i < frames; ++i) {
-        double t = (frames > 1) ? (double)i / 30.0 : 2.4;
+        double t = basePhase + ((frames > 1) ? (double)i / 30.0 : 0.0);
         char name[64];
         if (frames == 1) std::snprintf(name, sizeof(name), "tabule.ppm");
         else             std::snprintf(name, sizeof(name), "tabule_%03d.ppm", i);
