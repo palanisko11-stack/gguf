@@ -1,1 +1,151 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Unbounded", "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-coal-950: #0b0908;
+  --color-coal-900: #141110;
+  --color-coal-850: #191513;
+  --color-coal-800: #1f1a17;
+  --color-coal-700: #2b2420;
+  --color-coal-600: #3b322b;
+  --color-coal-500: #4f433a;
+  --color-coal-400: #6b5d50;
+
+  --color-sand-100: #f4ecdd;
+  --color-sand-200: #e9dfcf;
+  --color-sand-400: #b3a492;
+  --color-sand-500: #8f8172;
+
+  --color-lamp-300: #ffc46a;
+  --color-lamp-400: #f2a33c;
+  --color-lamp-500: #d97f22;
+  --color-lamp-600: #a85c17;
+
+  --color-mine-300: #9cc0dd;
+  --color-mine-400: #6f9ec4;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background: var(--color-coal-950);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(242, 163, 60, 0.35);
+  color: #f4ecdd;
+}
+
+/* ── range input ─────────────────────────────────────── */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+}
+.slider::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #d97f22 0%,
+    #f2a33c var(--fill, 50%),
+    #2b2420 var(--fill, 50%),
+    #2b2420 100%
+  );
+}
+.slider::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: #2b2420;
+}
+.slider::-moz-range-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: #f2a33c;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5.5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #141110;
+  border: 2px solid #f2a33c;
+  box-shadow: 0 0 0 3px rgba(242, 163, 60, 0.12);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #141110;
+  border: 2px solid #f2a33c;
+  box-shadow: 0 0 0 3px rgba(242, 163, 60, 0.12);
+}
+.slider:hover::-webkit-slider-thumb,
+.slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(242, 163, 60, 0.18);
+  transform: scale(1.08);
+}
+.slider:focus {
+  outline: none;
+}
+
+/* ── scrollbar v panelu ──────────────────────────────── */
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3b322b transparent;
+}
+.panel-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: #3b322b;
+  border-radius: 3px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── animace ─────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fadeSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fade-up-1 { animation-delay: 0.08s; }
+.fade-up-2 { animation-delay: 0.18s; }
+.fade-up-3 { animation-delay: 0.3s; }
+
+@keyframes pulseLamp {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.pulse-lamp {
+  animation: pulseLamp 1.6s ease-in-out infinite;
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  animation: spinSlow 1.1s linear infinite;
+}
