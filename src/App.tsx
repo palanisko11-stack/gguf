@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import {
   createBoardScene,
   DEFAULT_PARAMS,
@@ -18,6 +18,8 @@ import {
   IconReset,
 } from "./ui/controls";
 import CompilerPanel from "./ui/CompilerPanel";
+
+const ChatPanel = lazy(() => import("./ui/ChatPanel"));
 
 const nf = new Intl.NumberFormat("cs-CZ");
 
@@ -68,6 +70,7 @@ export default function App() {
   const [panelOpen, setPanelOpen] = useState<boolean>(
     () => typeof window === "undefined" || window.matchMedia("(min-width: 1024px)").matches
   );
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -143,7 +146,11 @@ export default function App() {
       </header>
 
       {/* ── telemetrie ── */}
-      <footer className="fade-up fade-up-2 absolute bottom-4 left-4 right-4 flex flex-wrap items-end gap-1.5 md:bottom-6 md:left-7 md:right-auto md:max-w-[62%]">
+      <footer
+        className={`fade-up fade-up-2 absolute bottom-4 left-4 right-4 flex flex-wrap items-end gap-1.5 transition-opacity duration-300 md:bottom-6 md:left-7 md:right-auto md:max-w-[62%] ${
+          chatOpen ? "pointer-events-none opacity-0" : "opacity-100"
+        }`}
+      >
         <Chip label="FPS" value={tele ? tele.fps.toFixed(0).padStart(2, "0") : "—"} accent />
         <Chip label="Snímek" value={tele ? `${tele.ms.toFixed(1)} ms` : "—"} />
         <Chip label="Draw calls" value={tele ? nf.format(tele.calls) : "—"} />
@@ -296,6 +303,25 @@ export default function App() {
           Ovládání
         </button>
       )}
+
+      {/* ── coder chat (GGUF) ── */}
+      {!chatOpen && (
+        <button
+          type="button"
+          onClick={() => setChatOpen(true)}
+          className="fade-up fade-up-2 absolute bottom-16 left-4 z-30 flex items-center gap-3 rounded-sm border border-mine-400/50 bg-coal-900/92 px-4 py-2.5 shadow-lg backdrop-blur-md transition-all hover:border-mine-300 hover:bg-mine-400/15 md:bottom-20 md:left-7"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mine-300 opacity-60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-mine-300" />
+          </span>
+          <span className="text-left">
+            <span className="block font-display text-[12px] leading-tight font-bold tracking-wide text-mine-300">CODER CHAT</span>
+            <span className="block font-mono text-[8.5px] tracking-[0.14em] text-sand-500 uppercase">GGUF · běží lokálně ve WASM</span>
+          </span>
+        </button>
+      )}
+      <Suspense fallback={null}>{chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}</Suspense>
     </div>
   );
 }
