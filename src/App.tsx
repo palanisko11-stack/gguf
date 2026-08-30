@@ -29,6 +29,35 @@ function Chip({ label, value, accent }: { label: string; value: string; accent?:
   );
 }
 
+function CmdBlock({ label, cmd }: { label: string; cmd: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="rounded-sm border border-coal-700/80 bg-coal-900/80 px-3 py-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[9px] tracking-[0.18em] text-sand-500 uppercase">{label}</span>
+        <button
+          type="button"
+          onClick={() => {
+            void navigator.clipboard
+              ?.writeText(cmd)
+              .then(() => {
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 1400);
+              })
+              .catch(() => {});
+          }}
+          className="rounded-sm border border-coal-600 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.14em] text-sand-500 uppercase transition-colors hover:border-lamp-500/60 hover:text-lamp-300"
+        >
+          {copied ? "✓ hotovo" : "kopírovat"}
+        </button>
+      </div>
+      <code className="mt-1 block font-mono text-[11px] leading-relaxed break-all text-sand-200">
+        <span className="text-lamp-400">$</span> {cmd}
+      </code>
+    </div>
+  );
+}
+
 export default function App() {
   const mountRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<SceneAPI | null>(null);
@@ -184,6 +213,40 @@ export default function App() {
             <Section title="Pohled">
               <Toggle label="Automatická rotace kamery" checked={params.autoRotate} onChange={(v) => patch({ autoRotate: v })} />
               <Toggle label="Pozastavit animaci" checked={params.paused} onChange={(v) => patch({ paused: v })} />
+            </Section>
+
+            <Section title="C++ verze">
+              <div className="-mt-1 mb-1 inline-flex w-fit items-center gap-1.5 rounded-sm border border-mine-400/40 bg-mine-400/10 px-2 py-0.5">
+                <span className="inline-block h-[5px] w-[5px] rounded-full bg-mine-300" />
+                <span className="font-mono text-[9px] tracking-[0.18em] text-mine-300 uppercase">CPU raytracer · 0 závislostí</span>
+              </div>
+              <p className="text-[11px] leading-relaxed text-sand-400">
+                Stejná scéna jako <span className="text-sand-200">spustitelný program v C++17</span> — čistý
+                raytracer bez jediné knihovny, vlní touž funkcí povrchu. Texturu načte z{" "}
+                <span className="font-mono text-[10.5px] text-lamp-300">havirov.ppm</span> vedle programu,
+                jinak si vygeneruje procedurální uhlí.
+              </p>
+              <div className="flex flex-col gap-1.5">
+                <CmdBlock label="překlad" cmd="g++ -O2 -std=c++17 tabule.cpp -o tabule" />
+                <CmdBlock label="spuštění · 1 snímek" cmd="./tabule" />
+                <CmdBlock label="animace · 90 fází" cmd="./tabule 90" />
+                <CmdBlock label="textura z webp" cmd="ffmpeg -i havirov.webp havirov.ppm" />
+              </div>
+              <a
+                href={`${import.meta.env.BASE_URL}tabule.cpp`}
+                download="tabule.cpp"
+                className="mt-3 flex items-center justify-center gap-2 rounded-sm border border-lamp-500/60 bg-lamp-500/10 px-3 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-lamp-300 uppercase transition-colors hover:bg-lamp-500/20"
+              >
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3v12" />
+                  <path d="m7 10 5 5 5-5" />
+                  <path d="M5 21h14" />
+                </svg>
+                Stáhnout tabule.cpp
+              </a>
+              <p className="mt-2 font-mono text-[9.5px] leading-relaxed text-sand-500">
+                výstup: tabule.ppm (P6) · v prohlížeči g++ spustit nelze, soubor je k překladu lokálně
+              </p>
             </Section>
           </div>
 
